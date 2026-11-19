@@ -1,17 +1,16 @@
 <!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Telemetría ESP32</title><link rel="stylesheet" href="leaflet.css">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0a111e;color:#edf4ff;font:16px system-ui,sans-serif}header{border-bottom:1px solid #253147;background:#101a2a}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.mark{color:#68e5ce;margin-right:10px}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #344762;border-radius:9px;background:#19263a;color:#eff7ff;padding:9px 14px}button.primary{background:#79e9d3;color:#082321;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#83ecd9}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#a7b8cf;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#382e1f;color:#ffdb9c;font-size:14px;font-weight:700}.badge.live{background:#143b36;color:#90f1db}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#111c2d;border:1px solid #27364e;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#0f2634;background-image:linear-gradient(#43677542 1px,transparent 1px),linear-gradient(90deg,#43677542 1px,transparent 1px);background-size:35px 35px;overflow:hidden}.gps-map{position:absolute;inset:0;background:#182b38}.map-message{position:absolute;bottom:24px;left:12px;right:12px;z-index:500;background:#111c2d;color:#edf4ff;padding:8px 12px;border-radius:8px;font-size:14px}.pin{background:#77efd8;color:#102533;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #79e9d32b}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#a7b8cf}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#79e9d3;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #293a51}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#b9c8db}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
-dialog{width:min(460px,calc(100vw - 32px));background:#111c2d;color:#edf4ff;border:1px solid #344762;border-radius:16px;padding:24px}dialog::backdrop{background:#040810b9}dialog label{display:grid;gap:6px;font-size:14px;color:#b9c8db}dialog input{width:100%;font:inherit;font-size:16px;color:#edf4ff;background:#0a111e;border:1px solid #344762;padding:10px;border-radius:8px}dialog .actions{justify-content:flex-end}#form-error{color:#ffbdac}
-body{background:radial-gradient(ellipse at top right,#183149 0,transparent 52%),#0a111e}
-.layout{align-items:start;gap:20px}.stack{min-width:0}.card{border-radius:18px}
-.metric{border-top:3px solid var(--metric);background:linear-gradient(145deg,var(--glow),transparent 60%),#111c2d}
-.temperature{--metric:#79e9d3;--glow:#18413d}.humidity{--metric:#8ebcff;--glow:#21375a}
+*{box-sizing:border-box}body{margin:0;background:#f2f3f1;color:#202822;font:16px system-ui,sans-serif}header{border-bottom:1px solid #d5d9d5;background:#fbfcfa}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #b7c2b9;border-radius:9px;background:#fff;color:#26342b;padding:9px 14px}button.primary{background:#395744;color:#fff;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#345573}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#526058;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#eae7de;color:#554a34;font-size:14px;font-weight:700}.badge.live{background:#dce8df;color:#314d3c}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#fff;border:1px solid #d4dad5;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#e6eae6;background-image:linear-gradient(#77887926 1px,transparent 1px),linear-gradient(90deg,#77887926 1px,transparent 1px);background-size:35px 35px;overflow:hidden}.gps-map{position:absolute;inset:0;background:#e6eae6}.map-message{border:1px solid #d4dad5;position:absolute;bottom:24px;left:12px;right:12px;z-index:500;background:#fff;color:#202822;padding:8px 12px;border-radius:8px;font-size:14px}.pin{background:#dce6de;color:#34473a;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #77887920}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#526058}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#395744;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e1e6e1}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#46534a}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
+dialog{width:min(460px,calc(100vw - 32px));background:#fff;color:#202822;border:1px solid #b7c2b9;border-radius:16px;padding:24px}dialog::backdrop{background:#262d2880}dialog label{display:grid;gap:6px;font-size:14px;color:#46534a}dialog input{width:100%;font:inherit;font-size:16px;color:#202822;background:#f2f3f1;border:1px solid #b7c2b9;padding:10px;border-radius:8px}dialog .actions{justify-content:flex-end}#form-error{color:#953c2a}
+.layout{align-items:start;gap:20px}.stack{min-width:0}.card{border-radius:12px}
+.metric{border-top:3px solid var(--metric);background:#fff}
+.temperature{--metric:#395744}.humidity{--metric:#3c5b76}
 .metric h2{color:var(--metric)}.metric .unit{color:var(--metric)}
 .metric .temp{line-height:1.1;margin:14px 0;font-variant-numeric:tabular-nums}
-.coords{background:#0e1929}#plot{background-size:28px 28px}
+.coords{background:#f4f6f4}#plot{background-size:28px 28px}
 @media(max-width:760px){.sensors{grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric.pad{padding:14px}.metric h2{font-size:15px}.metric .temp{font-size:clamp(30px,8vw,50px)}.metric .unit{font-size:16px;margin-left:4px}.metric canvas{height:74px}.digits{font-size:16px}}
 </style>
-<header><nav><div class="brand"><span class="mark">◈</span> Telemetría ESP32</div><div class="actions"><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
+<header><nav><div class="brand">Telemetría ESP32</div><div class="actions"><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
 <main><span id="badge" class="badge" role="status">Sin conexión</span><h1>Ubicación, temperatura y humedad</h1><p id="notice">Conecta el panel al broker MQTT para recibir lecturas del ESP32.</p>
 <div class="layout"><div class="stack location"><section class="card"><div class="pad map-head"><h2>Ubicación GPS</h2><button id="map" disabled>Cargar mapa</button></div><div id="plot"><span class="pin" id="pin">Esperando señal GPS</span></div><div class="pad coords"><div class="small">Latitud<div class="digits" id="lat">—</div></div><div class="small">Longitud<div class="digits" id="lon">—</div></div><a id="external" class="small" target="_blank" rel="noopener noreferrer" hidden>Abrir en OpenStreetMap</a></div></section><section class="card pad"><h2>Estado del dispositivo</h2><div class="meta"><span class="small">GPS</span><strong id="fix">—</strong></div><div class="meta"><span class="small">Última lectura</span><strong id="time">—</strong></div></section></div>
 <div class="stack sensors"><section class="card pad metric temperature"><h2>Temperatura</h2><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small">Últimas 60 lecturas</div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
@@ -42,7 +41,7 @@ function drawChart(id,history,color){
   c.width=bounds.width*ratio; c.height=bounds.height*ratio;
   const ctx=c.getContext('2d'); ctx.scale(ratio,ratio);
   const {width:w,height:h}=bounds;
-  ctx.strokeStyle='#293d54';
+  ctx.strokeStyle='#e1e6e1';
   for(const y of [15,h/2,h-15]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
   if(!history.length)return;
   const low=Math.min(...history)-.4, high=Math.max(...history)+.4;
@@ -54,8 +53,8 @@ function drawChart(id,history,color){
   });ctx.stroke();
 }
 function draw(){
-  drawChart('chart',history,'#79e9d3');
-  drawChart('humidity-chart',humidityHistory,'#8ebcff');
+  drawChart('chart',history,'#395744');
+  drawChart('humidity-chart',humidityHistory,'#3c5b76');
 }
 function hideMap(){
   gpsMap?.remove();
@@ -93,7 +92,7 @@ function showMap(){
   tiles.on('loading',()=>{message.hidden=true;});
   tiles.on('tileerror',()=>{message.hidden=false;});
   tiles.addTo(gpsMap);
-  marker=window.L.circleMarker(point,{radius:9,color:'#fff',weight:3,fillColor:'#087f73',fillOpacity:1}).addTo(gpsMap);
+  marker=window.L.circleMarker(point,{radius:9,color:'#fff',weight:3,fillColor:'#395744',fillOpacity:1}).addTo(gpsMap);
   mapNode.append(message);
 }
 function render(data){
