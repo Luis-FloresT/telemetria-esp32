@@ -2,20 +2,46 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f2f3f1;color:#202822;font:16px system-ui,sans-serif}header{border-bottom:1px solid #d5d9d5;background:#fbfcfa}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #b7c2b9;border-radius:9px;background:#fff;color:#26342b;padding:9px 14px}button.primary{background:#395744;color:#fff;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#345573}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#526058;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#eae7de;color:#554a34;font-size:14px;font-weight:700}.badge.live{background:#dce8df;color:#314d3c}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#fff;border:1px solid #d4dad5;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#e6eae6;background-image:linear-gradient(#77887926 1px,transparent 1px),linear-gradient(90deg,#77887926 1px,transparent 1px);background-size:35px 35px;overflow:hidden}.gps-map{position:absolute;inset:0;background:#e6eae6}.map-message{border:1px solid #d4dad5;position:absolute;bottom:24px;left:12px;right:12px;z-index:500;background:#fff;color:#202822;padding:8px 12px;border-radius:8px;font-size:14px}.pin{background:#dce6de;color:#34473a;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #77887920}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#526058}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#395744;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e1e6e1}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#46534a}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
 dialog{width:min(460px,calc(100vw - 32px));background:#fff;color:#202822;border:1px solid #b7c2b9;border-radius:16px;padding:24px}dialog::backdrop{background:#262d2880}dialog label{display:grid;gap:6px;font-size:14px;color:#46534a}dialog input{width:100%;font:inherit;font-size:16px;color:#202822;background:#f2f3f1;border:1px solid #b7c2b9;padding:10px;border-radius:8px}dialog .actions{justify-content:flex-end}#form-error{color:#953c2a}
-.layout{align-items:start;gap:20px}.stack{min-width:0}.card{border-radius:12px}
-.metric{border-top:3px solid var(--metric);background:#fff}
-.temperature{--metric:#395744}.humidity{--metric:#3c5b76}
-.metric h2{color:var(--metric)}.metric .unit{color:var(--metric)}
-.metric .temp{line-height:1.1;margin:14px 0;font-variant-numeric:tabular-nums}
-.coords{background:#f4f6f4}#plot{background-size:28px 28px}
-@media(max-width:760px){.sensors{grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric.pad{padding:14px}.metric h2{font-size:15px}.metric .temp{font-size:clamp(30px,8vw,50px)}.metric .unit{font-size:16px;margin-left:4px}.metric canvas{height:74px}.digits{font-size:16px}}
+
+:root{--field:#e9eeec;--ink:#28332e;--rule:#d2dbd5;--pine:#304a3e;--slate:#425b6c;--surface:#fff}
+body{background:var(--field);color:var(--ink);font-family:"Avenir Next",Avenir,system-ui,sans-serif}
+header{background:var(--pine);border:0;color:white}
+nav{min-height:68px;padding-block:12px}
+.brand{font-size:1.05rem;letter-spacing:.015em}
+nav .primary{background:#f1f4ee;color:#283b31;border:1px solid #dbe3d9;border-radius:5px}
+main{padding-top:32px}
+h1{font-size:clamp(2rem,5vw,3rem);font-weight:650;letter-spacing:-.04em}
+.badge{border-radius:4px;background:#e0e5e0;color:#435149}
+.layout{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);align-items:start;gap:20px}
+.card{border-color:var(--rule);border-radius:8px}
+.stack{min-width:0}
+.ambient-heading{padding:18px 21px;margin:0;border-bottom:1px solid var(--rule);background:#f7f9f7}
+.metric{background:var(--surface);min-width:0}
+.metric+.metric{border-top:1px solid var(--rule)}
+.temperature{--metric:var(--pine)}.humidity{--metric:var(--slate)}
+.metric h3{margin:0;color:var(--metric);font-size:1rem}
+.metric .unit{color:var(--metric)}
+.metric .temp{font-size:3rem;line-height:1.12;margin:8px 0;font-weight:600;font-variant-numeric:tabular-nums}
+.metric canvas{height:65px;margin-top:8px}
+.coords{background:#f7f9f7}
+#plot{height:310px;background-size:28px 28px}
+.pin{box-shadow:none;border:1px solid #c6d2c9;border-radius:5px}
+button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid #466d91;outline-offset:3px}
+@media(max-width:760px){
+  .layout{grid-template-columns:1fr;gap:14px}.sensors{grid-row:1}
+  .sensor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .metric+.metric{border-top:0;border-left:1px solid var(--rule)}
+  .metric.pad{padding:14px}.metric h3{font-size:.9rem}
+  .metric .temp{font-size:clamp(1.85rem,8vw,3rem)}.metric .unit{font-size:1rem;margin-left:4px}
+  .digits{font-size:1rem}#plot{height:250px}
+}
 </style>
-<header><nav><div class="brand">Telemetría ESP32</div><div class="actions"><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
-<main><span id="badge" class="badge" role="status">Sin conexión</span><h1>Ubicación, temperatura y humedad</h1><p id="notice">Conecta el panel al broker MQTT para recibir lecturas del ESP32.</p>
+<header><nav><div class="brand">Estación ESP32</div><div class="actions"><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
+<main><span id="badge" class="badge" role="status">Sin conexión</span><h1>Monitoreo de campo</h1><p id="notice">Conecta el panel al broker MQTT para recibir lecturas del ESP32.</p>
 <div class="layout"><div class="stack location"><section class="card"><div class="pad map-head"><h2>Ubicación GPS</h2><button id="map" disabled>Cargar mapa</button></div><div id="plot"><span class="pin" id="pin">Esperando señal GPS</span></div><div class="pad coords"><div class="small">Latitud<div class="digits" id="lat">—</div></div><div class="small">Longitud<div class="digits" id="lon">—</div></div><a id="external" class="small" target="_blank" rel="noopener noreferrer" hidden>Abrir en OpenStreetMap</a></div></section><section class="card pad"><h2>Estado del dispositivo</h2><div class="meta"><span class="small">GPS</span><strong id="fix">—</strong></div><div class="meta"><span class="small">Última lectura</span><strong id="time">—</strong></div></section></div>
-<div class="stack sensors"><section class="card pad metric temperature"><h2>Temperatura</h2><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small">Últimas 60 lecturas</div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
-<section class="card pad metric humidity"><h2>Humedad relativa</h2><div class="temp"><span id="hum">—</span><span class="unit">%</span></div><div class="small">Últimas 60 lecturas</div><canvas id="humidity-chart" aria-label="Historial de humedad relativa" role="img"></canvas></section>
-</div></div>
+<section class="sensors card" aria-labelledby="ambient"><h2 id="ambient" class="ambient-heading">Lecturas ambientales</h2><div class="sensor-grid"><section class="pad metric temperature"><h3>Temperatura</h3><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small"><span id="temp-history">Esperando datos</span></div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
+<section class="pad metric humidity"><h3>Humedad relativa</h3><div class="temp"><span id="hum">—</span><span class="unit">%</span></div><div class="small"><span id="hum-history">Esperando datos</span></div><canvas id="humidity-chart" aria-label="Historial de humedad relativa" role="img"></canvas></section>
+</div></section></div>
 <details class="card pad"><summary>Cómo configurar el broker</summary><p>El ESP32 debe publicar en el mismo tema que configures en el panel. Envía un objeto JSON por lectura. Usa <code>null</code> mientras el GPS busca señal o si falla el sensor.</p><p><code>{"lat":-0.180653,"lon":-78.467834,"temp":23.4,"hum":58.2}</code></p></details>
 <dialog id="settings" aria-labelledby="settings-title"><form id="broker" class="stack">
 <h2 id="settings-title">Conectar al broker MQTT</h2>
@@ -120,10 +146,12 @@ function updateMetric(id,value,series){
     series.push(value);
     if(series.length>60)series.shift();
   }
+  $(id+'-history').textContent=series.length?'Últimas '+series.length+' de 60 lecturas':'Esperando datos';
 }
 function reset(){
   hideMap();position=null;history=[];humidityHistory=[];last=0;waitingSince=0;
   for(const id of ['lat','lon','temp','hum','fix','time'])$(id).textContent='—';
+  $('temp-history').textContent='Esperando datos';$('hum-history').textContent='Esperando datos';
   $('pin').textContent='Esperando señal GPS'; $('map').disabled=true;$('external').hidden=true;draw();
 }
 function receive(line){
