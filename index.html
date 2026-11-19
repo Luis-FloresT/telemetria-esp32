@@ -11,9 +11,9 @@ body{background:radial-gradient(ellipse at top right,#183149 0,transparent 52%),
 .coords{background:#0e1929}#plot{background-size:28px 28px}
 @media(max-width:760px){.sensors{grid-row:1;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric.pad{padding:14px}.metric h2{font-size:15px}.metric .temp{font-size:clamp(30px,8vw,50px)}.metric .unit{font-size:16px;margin-left:4px}.metric canvas{height:74px}.digits{font-size:16px}}
 </style>
-<header><nav><div class="brand"><span class="mark">◈</span> Telemetría ESP32</div><div class="actions"><button id="demo">Demostración</button><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
-<main><span id="badge" class="badge" role="status">Demostración</span><h1>Ubicación, temperatura y humedad</h1><p id="notice">Datos simulados para probar el panel.</p>
-<div class="layout"><div class="stack location"><section class="card"><div class="pad map-head"><h2>Ubicación GPS</h2><button id="map">Cargar mapa</button></div><div id="plot"><span class="pin" id="pin">Ubicación de ejemplo</span></div><div class="pad coords"><div class="small">Latitud<div class="digits" id="lat">—</div></div><div class="small">Longitud<div class="digits" id="lon">—</div></div><a id="external" class="small" target="_blank" rel="noopener noreferrer" hidden>Abrir en OpenStreetMap</a></div></section><section class="card pad"><h2>Estado del dispositivo</h2><div class="meta"><span class="small">GPS</span><strong id="fix">—</strong></div><div class="meta"><span class="small">Última lectura</span><strong id="time">—</strong></div></section></div>
+<header><nav><div class="brand"><span class="mark">◈</span> Telemetría ESP32</div><div class="actions"><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
+<main><span id="badge" class="badge" role="status">Sin conexión</span><h1>Ubicación, temperatura y humedad</h1><p id="notice">Conecta el panel al broker MQTT para recibir lecturas del ESP32.</p>
+<div class="layout"><div class="stack location"><section class="card"><div class="pad map-head"><h2>Ubicación GPS</h2><button id="map" disabled>Cargar mapa</button></div><div id="plot"><span class="pin" id="pin">Esperando señal GPS</span></div><div class="pad coords"><div class="small">Latitud<div class="digits" id="lat">—</div></div><div class="small">Longitud<div class="digits" id="lon">—</div></div><a id="external" class="small" target="_blank" rel="noopener noreferrer" hidden>Abrir en OpenStreetMap</a></div></section><section class="card pad"><h2>Estado del dispositivo</h2><div class="meta"><span class="small">GPS</span><strong id="fix">—</strong></div><div class="meta"><span class="small">Última lectura</span><strong id="time">—</strong></div></section></div>
 <div class="stack sensors"><section class="card pad metric temperature"><h2>Temperatura</h2><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small">Últimas 60 lecturas</div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
 <section class="card pad metric humidity"><h2>Humedad relativa</h2><div class="temp"><span id="hum">—</span><span class="unit">%</span></div><div class="small">Últimas 60 lecturas</div><canvas id="humidity-chart" aria-label="Historial de humedad relativa" role="img"></canvas></section>
 </div></div>
@@ -32,7 +32,7 @@ body{background:radial-gradient(ellipse at top right,#183149 0,transparent 52%),
 <script src="leaflet.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-let mode='demo', client=null, waitingSince=0, last=0, position=null, history=[], humidityHistory=[], step=0, gpsMap=null, marker=null, mapNode=null;
+let client=null, waitingSince=0, last=0, position=null, history=[], humidityHistory=[], gpsMap=null, marker=null, mapNode=null;
 const valid=(value,limit)=>Number.isFinite(value)&&Math.abs(value)<=limit;
 function status(title,message,live=false){
   $('badge').textContent=title; $('badge').classList.toggle('live',live); $('notice').textContent=message;
@@ -103,8 +103,8 @@ function render(data){
   const changed=String(position)!==String(next);
   position=next;
   $('lat').textContent=next?lat.toFixed(6):'—';$('lon').textContent=next?lon.toFixed(6):'—';
-  $('fix').textContent=next?(mode==='demo'?'Simulado':'Con señal'):'Sin señal';
-  $('pin').textContent=next?(mode==='demo'?'Ubicación de ejemplo':'Coordenadas recibidas'):'Esperando señal GPS';
+  $('fix').textContent=next?'Con señal':'Sin señal';
+  $('pin').textContent=next?'Coordenadas recibidas':'Esperando señal GPS';
   $('map').disabled=!next;$('external').hidden=!next;
   if(next){
     $('external').href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon+'&layers=M';
@@ -126,14 +126,6 @@ function reset(){
   hideMap();position=null;history=[];humidityHistory=[];last=0;waitingSince=0;
   for(const id of ['lat','lon','temp','hum','fix','time'])$(id).textContent='—';
   $('pin').textContent='Esperando señal GPS'; $('map').disabled=true;$('external').hidden=true;draw();
-}
-function sample(){
-  render({lat:-0.180653,lon:-78.467834,temp:23.4+.65*Math.sin(step++/5)+.18*Math.cos(step*1.2),hum:58.2+2*Math.cos(step/6)});
-}
-function demo(){
-  mode='demo';reset();step=0;
-  for(let i=0;i<23;i++)sample();
-  status('Demostración','Datos simulados para probar el panel.');
 }
 function receive(line){
   let data;
@@ -180,7 +172,7 @@ $('broker').onsubmit=event=>{
     return;
   }
   client=connection;
-  mode='mqtt';reset();
+  reset();
   $('settings').close();
   $('connect').textContent='Desconectar';
   status('Conectando','Abriendo una conexión segura con el broker.');
@@ -212,15 +204,13 @@ $('broker').onsubmit=event=>{
     waitingSince=0;reset();status('Reconectando','Se perdió la conexión con el broker.');
   });
 };
-$('demo').onclick=()=>{disconnect();demo();};
 $('map').onclick=showMap;
 window.addEventListener('resize',draw);
 setInterval(()=>{
-  if(mode==='demo')sample();
   const since=last||waitingSince;
   if(client?.connected&&since&&Date.now()-since>8000){
     waitingSince=0;reset();status('Sin lecturas','El broker está conectado. Revisa si el ESP32 está publicando en el tema configurado.');
   }
 },1000);
-demo();
+reset();
 </script></html>
