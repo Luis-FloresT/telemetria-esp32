@@ -1,6 +1,6 @@
-<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Telemetría ESP32</title>
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Telemetría ESP32</title><link rel="stylesheet" href="leaflet.css">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0a111e;color:#edf4ff;font:16px system-ui,sans-serif}header{border-bottom:1px solid #253147;background:#101a2a}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.mark{color:#68e5ce;margin-right:10px}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #344762;border-radius:9px;background:#19263a;color:#eff7ff;padding:9px 14px}button.primary{background:#79e9d3;color:#082321;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#83ecd9}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#a7b8cf;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#382e1f;color:#ffdb9c;font-size:14px;font-weight:700}.badge.live{background:#143b36;color:#90f1db}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#111c2d;border:1px solid #27364e;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#0f2634;background-image:linear-gradient(#43677542 1px,transparent 1px),linear-gradient(90deg,#43677542 1px,transparent 1px);background-size:35px 35px;overflow:hidden}iframe{width:100%;height:100%;border:0;position:absolute;inset:0}.pin{background:#77efd8;color:#102533;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #79e9d32b}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#a7b8cf}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#79e9d3;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #293a51}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#b9c8db}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
+*{box-sizing:border-box}body{margin:0;background:#0a111e;color:#edf4ff;font:16px system-ui,sans-serif}header{border-bottom:1px solid #253147;background:#101a2a}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.mark{color:#68e5ce;margin-right:10px}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #344762;border-radius:9px;background:#19263a;color:#eff7ff;padding:9px 14px}button.primary{background:#79e9d3;color:#082321;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#83ecd9}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#a7b8cf;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#382e1f;color:#ffdb9c;font-size:14px;font-weight:700}.badge.live{background:#143b36;color:#90f1db}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#111c2d;border:1px solid #27364e;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#0f2634;background-image:linear-gradient(#43677542 1px,transparent 1px),linear-gradient(90deg,#43677542 1px,transparent 1px);background-size:35px 35px;overflow:hidden}.gps-map{position:absolute;inset:0;background:#182b38}.map-message{position:absolute;bottom:24px;left:12px;right:12px;z-index:500;background:#111c2d;color:#edf4ff;padding:8px 12px;border-radius:8px;font-size:14px}.pin{background:#77efd8;color:#102533;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #79e9d32b}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#a7b8cf}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#79e9d3;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #293a51}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#b9c8db}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
 dialog{width:min(460px,calc(100vw - 32px));background:#111c2d;color:#edf4ff;border:1px solid #344762;border-radius:16px;padding:24px}dialog::backdrop{background:#040810b9}dialog label{display:grid;gap:6px;font-size:14px;color:#b9c8db}dialog input{width:100%;font:inherit;font-size:16px;color:#edf4ff;background:#0a111e;border:1px solid #344762;padding:10px;border-radius:8px}dialog .actions{justify-content:flex-end}#form-error{color:#ffbdac}
 body{background:radial-gradient(ellipse at top right,#183149 0,transparent 52%),#0a111e}
 .layout{align-items:start;gap:20px}.stack{min-width:0}.card{border-radius:18px}
@@ -29,9 +29,10 @@ body{background:radial-gradient(ellipse at top right,#183149 0,transparent 52%),
 </form></dialog>
 </main>
 <script src="mqtt.min.js"></script>
+<script src="leaflet.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-let mode='demo', client=null, waitingSince=0, last=0, position=null, history=[], humidityHistory=[], step=0, frame=null;
+let mode='demo', client=null, waitingSince=0, last=0, position=null, history=[], humidityHistory=[], step=0, gpsMap=null, marker=null, mapNode=null;
 const valid=(value,limit)=>Number.isFinite(value)&&Math.abs(value)<=limit;
 function status(title,message,live=false){
   $('badge').textContent=title; $('badge').classList.toggle('live',live); $('notice').textContent=message;
@@ -56,14 +57,44 @@ function draw(){
   drawChart('chart',history,'#79e9d3');
   drawChart('humidity-chart',humidityHistory,'#8ebcff');
 }
-function hideMap(){frame?.remove(); frame=null;}
+function hideMap(){
+  gpsMap?.remove();
+  mapNode?.remove();
+  gpsMap=null;marker=null;mapNode=null;
+  $('pin').hidden=false;
+}
 function showMap(){
   if(!position)return;
-  const [lat,lon]=position, delta=.008, y=Math.max(-85,Math.min(85,lat));
-  const src=new URL('https://www.openstreetmap.org/export/embed.html');
-  src.search=new URLSearchParams({bbox:[Math.max(-180,lon-delta),y-delta,Math.min(180,lon+delta),y+delta].join(','),layer:'mapnik',marker:[lat,lon].join(',')});
-  if(!frame){frame=document.createElement('iframe');frame.title='Mapa de OpenStreetMap';$('plot').append(frame);}
-  frame.src=src;
+  const [lat,lon]=position;
+  const point=[Math.max(-85.0511,Math.min(85.0511,lat)),lon];
+  if(gpsMap){
+    marker.setLatLng(point);
+    gpsMap.panTo(point,{animate:false});
+    return;
+  }
+  if(!window.L){
+    $('pin').textContent='Mapa no disponible';
+    return;
+  }
+  mapNode=document.createElement('div');
+  mapNode.className='gps-map';
+  mapNode.setAttribute('aria-label','Mapa de ubicación GPS');
+  const message=document.createElement('div');
+  message.className='map-message';
+  message.textContent='No se pudieron cargar algunas partes del mapa.';
+  message.hidden=true;
+  $('plot').append(mapNode);
+  $('pin').hidden=true;
+  gpsMap=window.L.map(mapNode,{maxBounds:[[-85.0511,-180],[85.0511,180]],maxBoundsViscosity:1}).setView(point,16);
+  const tiles=window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    maxZoom:19,noWrap:true,keepBuffer:0,
+    attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  });
+  tiles.on('loading',()=>{message.hidden=true;});
+  tiles.on('tileerror',()=>{message.hidden=false;});
+  tiles.addTo(gpsMap);
+  marker=window.L.circleMarker(point,{radius:9,color:'#fff',weight:3,fillColor:'#087f73',fillOpacity:1}).addTo(gpsMap);
+  mapNode.append(message);
 }
 function render(data){
   last=Date.now();
@@ -76,8 +107,8 @@ function render(data){
   $('pin').textContent=next?(mode==='demo'?'Ubicación de ejemplo':'Coordenadas recibidas'):'Esperando señal GPS';
   $('map').disabled=!next;$('external').hidden=!next;
   if(next){
-    $('external').href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon;
-    if(frame&&changed)showMap();
+    $('external').href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon+'&layers=M';
+    if(gpsMap&&changed)showMap();
   }else hideMap();
   updateMetric('temp',temp,history);
   updateMetric('hum',hum>=0&&hum<=100?hum:null,humidityHistory);
