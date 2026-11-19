@@ -11,7 +11,7 @@ nav{min-height:68px;padding-block:12px}
 nav .primary{background:#f1f4ee;color:#283b31;border:1px solid #dbe3d9;border-radius:5px}
 main{padding-top:32px}
 h1{font-size:clamp(2rem,5vw,3rem);font-weight:650;letter-spacing:-.04em}
-.badge{border-radius:4px;background:#e0e5e0;color:#435149}
+.badge{border-radius:4px;background:#e3e5e7;color:#40474d}.badge.live{background:#d9eadc;color:#285436}
 .layout{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);align-items:start;gap:20px}
 .card{border-color:var(--rule);border-radius:8px}
 .stack{min-width:0}
@@ -212,7 +212,7 @@ $('broker').onsubmit=event=>{
         return;
       }
       waitingSince=Date.now();
-      if(!last)status('Conectado','Esperando la primera lectura publicada en '+topic+'.');
+      if(!last)status('Conectado','Esperando la primera lectura publicada en '+topic+'.',true);
     });
   });
   connection.on('message',(incoming,payload,packet)=>{
@@ -236,7 +236,7 @@ window.addEventListener('resize',draw);
 setInterval(()=>{
   const since=last||waitingSince;
   if(client?.connected&&since&&Date.now()-since>8000){
-    waitingSince=0;reset();status('Sin lecturas','El broker está conectado. Revisa si el ESP32 está publicando en el tema configurado.');
+    waitingSince=0;reset();status('Sin lecturas','El broker está conectado. Revisa si el ESP32 está publicando en el tema configurado.',true);
   }
 },1000);
 reset();
