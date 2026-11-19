@@ -42,7 +42,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible{o
 <section class="sensors card" aria-labelledby="ambient"><h2 id="ambient" class="ambient-heading">Lecturas ambientales</h2><div class="sensor-grid"><section class="pad metric temperature"><h3>Temperatura</h3><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small"><span id="temp-history">Esperando datos</span></div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
 <section class="pad metric humidity"><h3>Humedad relativa</h3><div class="temp"><span id="hum">—</span><span class="unit">%</span></div><div class="small"><span id="hum-history">Esperando datos</span></div><canvas id="humidity-chart" aria-label="Historial de humedad relativa" role="img"></canvas></section>
 </div></section></div>
-<details class="card pad"><summary>Cómo configurar el broker</summary><p>El ESP32 debe publicar en el mismo tema que configures en el panel. Envía un objeto JSON por lectura. Usa <code>null</code> mientras el GPS busca señal o si falla el sensor.</p><p><code>{"lat":-0.180653,"lon":-78.467834,"temp":23.4,"hum":58.2}</code></p></details>
+<details class="card pad"><summary>Cómo configurar el broker</summary><p>El ESP32 debe publicar en el mismo tema que configures en el panel. Envía un objeto JSON por lectura. Usa <code>null</code> mientras el GPS busca señal o si falla el sensor.</p><p><code>{"lat":-0.180653,"lon":-78.467834,"temperature":23.4,"humidity":58.2}</code></p></details>
 <dialog id="settings" aria-labelledby="settings-title"><form id="broker" class="stack">
 <h2 id="settings-title">Conectar al broker MQTT</h2>
 <label>URL WebSocket segura<input name="url" type="url" placeholder="wss://tu-broker:8884/mqtt" required></label>
@@ -157,8 +157,17 @@ function reset(){
 function receive(line){
   let data;
   try{data=JSON.parse(line);}catch{return;}
-  if(!data||typeof data!=='object'||!['lat','lon','temp'].every(key=>Object.hasOwn(data,key)&&(data[key]===null||Number.isFinite(data[key]))))return;
-  render(data);status('En vivo','Recibiendo lecturas del ESP32 a través del broker MQTT.',true);
+  if(!data||typeof data!=='object'||Array.isArray(data))return;
+  const fields={lat:['lat','latitude'],lon:['lon','lng','longitude'],temp:['temp','temperature'],hum:['hum','humidity']};
+  const reading={};
+  for(const [key,aliases] of Object.entries(fields)){
+    const name=aliases.find(alias=>Object.hasOwn(data,alias));
+    if(name===undefined)continue;
+    const value=data[name];
+    if(value===null||Number.isFinite(value))reading[key]=value;
+  }
+  if(!Object.keys(reading).length)return;
+  render(reading);status('En vivo','Recibiendo lecturas del ESP32 a través del broker MQTT.',true);
 }
 function disconnect(){
   const old=client;
