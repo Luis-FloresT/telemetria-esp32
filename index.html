@@ -1,0 +1,187 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Telemetría ESP32</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0a111e;color:#edf4ff;font:16px system-ui,sans-serif}header{border-bottom:1px solid #253147;background:#101a2a}nav,main{max-width:1200px;margin:auto;padding:20px 28px}nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:750}.mark{color:#68e5ce;margin-right:10px}.actions{display:flex;gap:9px;flex-wrap:wrap}button,a{font:inherit}button{cursor:pointer;border:1px solid #344762;border-radius:9px;background:#19263a;color:#eff7ff;padding:9px 14px}button.primary{background:#79e9d3;color:#082321;font-weight:750;border-color:transparent}button:disabled{opacity:.5;cursor:default}a{color:#83ecd9}main{padding-top:38px}h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.055em;margin:12px 0 6px}p{color:#a7b8cf;margin:0;line-height:1.55}.badge{display:inline-flex;padding:6px 10px;border-radius:6px;background:#382e1f;color:#ffdb9c;font-size:14px;font-weight:700}.badge.live{background:#143b36;color:#90f1db}.layout{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin:27px 0 18px}.stack{display:grid;gap:18px}.card{background:#111c2d;border:1px solid #27364e;border-radius:16px;overflow:hidden}.pad{padding:21px}h2{font-size:17px;margin:0 0 8px}.map-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.map-head h2{margin:0}#plot{display:grid;place-items:center;position:relative;height:318px;background-color:#0f2634;background-image:linear-gradient(#43677542 1px,transparent 1px),linear-gradient(90deg,#43677542 1px,transparent 1px);background-size:35px 35px;overflow:hidden}iframe{width:100%;height:100%;border:0;position:absolute;inset:0}.pin{background:#77efd8;color:#102533;padding:12px 17px;border-radius:20px;font-weight:750;box-shadow:0 0 0 13px #79e9d32b}.coords{display:grid;grid-template-columns:1fr 1fr;gap:12px}.small{font-size:14px;color:#a7b8cf}.digits{font:600 19px ui-monospace,monospace;margin-top:6px}.temp{font-size:58px;font-weight:750;letter-spacing:-.07em;margin:5px 0}.unit{font-size:27px;color:#79e9d3;margin-left:8px}.meta{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #293a51}.meta:last-child{border:0}canvas{width:100%;height:115px;display:block;margin-top:12px}details{margin-top:18px;color:#b9c8db}summary{cursor:pointer}code{overflow-wrap:anywhere}@media(max-width:760px){.layout{grid-template-columns:1fr}nav,main{padding-left:16px;padding-right:16px}#plot{height:260px}}[hidden]{display:none!important}
+dialog{width:min(460px,calc(100vw - 32px));background:#111c2d;color:#edf4ff;border:1px solid #344762;border-radius:16px;padding:24px}dialog::backdrop{background:#040810b9}dialog label{display:grid;gap:6px;font-size:14px;color:#b9c8db}dialog input{width:100%;font:inherit;font-size:16px;color:#edf4ff;background:#0a111e;border:1px solid #344762;padding:10px;border-radius:8px}dialog .actions{justify-content:flex-end}#form-error{color:#ffbdac}
+</style>
+<header><nav><div class="brand"><span class="mark">◈</span> Telemetría ESP32</div><div class="actions"><button id="demo">Demostración</button><button id="connect" class="primary">Conectar a MQTT</button></div></nav></header>
+<main><span id="badge" class="badge" role="status">Demostración</span><h1>Ubicación, temperatura y humedad</h1><p id="notice">Datos simulados para probar el panel.</p>
+<div class="layout"><section class="card"><div class="pad map-head"><h2>Ubicación GPS</h2><button id="map">Cargar mapa</button></div><div id="plot"><span class="pin" id="pin">Ubicación de ejemplo</span></div><div class="pad coords"><div class="small">Latitud<div class="digits" id="lat">—</div></div><div class="small">Longitud<div class="digits" id="lon">—</div></div><a id="external" class="small" target="_blank" rel="noopener noreferrer" hidden>Abrir en OpenStreetMap</a></div></section>
+<div class="stack"><section class="card pad"><h2>Temperatura</h2><div class="temp"><span id="temp">—</span><span class="unit">°C</span></div><div class="small">Últimas 60 lecturas</div><canvas id="chart" aria-label="Historial de temperatura" role="img"></canvas></section>
+<section class="card pad"><h2>Humedad relativa</h2><div class="temp"><span id="hum">—</span><span class="unit">%</span></div><div class="small">Últimas 60 lecturas</div><canvas id="humidity-chart" aria-label="Historial de humedad relativa" role="img"></canvas></section>
+<section class="card pad"><h2>Estado del dispositivo</h2><div class="meta"><span class="small">GPS</span><strong id="fix">—</strong></div><div class="meta"><span class="small">Última lectura</span><strong id="time">—</strong></div></section></div></div>
+<details class="card pad"><summary>Cómo configurar el broker</summary><p>El ESP32 debe publicar en el mismo tema que configures en el panel. Envía un objeto JSON por lectura. Usa <code>null</code> mientras el GPS busca señal o si falla el sensor.</p><p><code>{"lat":-0.180653,"lon":-78.467834,"temp":23.4,"hum":58.2}</code></p></details>
+<dialog id="settings" aria-labelledby="settings-title"><form id="broker" class="stack">
+<h2 id="settings-title">Conectar al broker MQTT</h2>
+<label>URL WebSocket segura<input name="url" type="url" placeholder="wss://tu-broker:8884/mqtt" required></label>
+<label>Tema MQTT<input name="topic" value="proyecto/esp32-01/telemetria" required></label>
+<label>Usuario del panel<input name="username" autocomplete="off"></label>
+<label>Contraseña del panel<input name="password" type="password" autocomplete="off"></label>
+<p id="form-error" role="alert" hidden></p>
+<div class="actions"><button type="button" id="cancel">Cancelar</button><button class="primary" type="submit">Conectar</button></div>
+</form></dialog>
+</main>
+<script src="mqtt.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let mode='demo', client=null, waitingSince=0, last=0, position=null, history=[], humidityHistory=[], step=0, frame=null;
+const valid=(value,limit)=>Number.isFinite(value)&&Math.abs(value)<=limit;
+function status(title,message,live=false){
+  $('badge').textContent=title; $('badge').classList.toggle('live',live); $('notice').textContent=message;
+}
+function drawChart(id,history,color){
+  const c=$(id), bounds=c.getBoundingClientRect(), ratio=devicePixelRatio;
+  c.width=bounds.width*ratio; c.height=bounds.height*ratio;
+  const ctx=c.getContext('2d'); ctx.scale(ratio,ratio);
+  const {width:w,height:h}=bounds;
+  ctx.strokeStyle='#293d54';
+  for(const y of [15,h/2,h-15]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  if(!history.length)return;
+  const low=Math.min(...history)-.4, high=Math.max(...history)+.4;
+  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5;
+  history.forEach((v,i)=>{
+    const x=4+(w-8)*i/Math.max(1,history.length-1),y=9+(h-18)*(high-v)/(high-low);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    if(history.length===1)ctx.lineTo(x+4,y);
+  });ctx.stroke();
+}
+function draw(){
+  drawChart('chart',history,'#79e9d3');
+  drawChart('humidity-chart',humidityHistory,'#8ebcff');
+}
+function hideMap(){frame?.remove(); frame=null;}
+function showMap(){
+  if(!position)return;
+  const [lat,lon]=position, delta=.008, y=Math.max(-85,Math.min(85,lat));
+  const src=new URL('https://www.openstreetmap.org/export/embed.html');
+  src.search=new URLSearchParams({bbox:[Math.max(-180,lon-delta),y-delta,Math.min(180,lon+delta),y+delta].join(','),layer:'mapnik',marker:[lat,lon].join(',')});
+  if(!frame){frame=document.createElement('iframe');frame.title='Mapa de OpenStreetMap';$('plot').append(frame);}
+  frame.src=src;
+}
+function render(data){
+  last=Date.now();
+  const {lat,lon,temp,hum}=data;
+  const next=valid(lat,90)&&valid(lon,180)?[lat,lon]:null;
+  const changed=String(position)!==String(next);
+  position=next;
+  $('lat').textContent=next?lat.toFixed(6):'—';$('lon').textContent=next?lon.toFixed(6):'—';
+  $('fix').textContent=next?(mode==='demo'?'Simulado':'Con señal'):'Sin señal';
+  $('pin').textContent=next?(mode==='demo'?'Ubicación de ejemplo':'Coordenadas recibidas'):'Esperando señal GPS';
+  $('map').disabled=!next;$('external').hidden=!next;
+  if(next){
+    $('external').href='https://www.openstreetmap.org/?mlat='+lat+'&mlon='+lon+'#map=16/'+lat+'/'+lon;
+    if(frame&&changed)showMap();
+  }else hideMap();
+  updateMetric('temp',temp,history);
+  updateMetric('hum',hum>=0&&hum<=100?hum:null,humidityHistory);
+  draw();
+  $('time').textContent=new Date(last).toLocaleTimeString('es');
+}
+function updateMetric(id,value,series){
+  $(id).textContent=Number.isFinite(value)?value.toLocaleString('es',{minimumFractionDigits:1,maximumFractionDigits:1}):'—';
+  if(Number.isFinite(value)){
+    series.push(value);
+    if(series.length>60)series.shift();
+  }
+}
+function reset(){
+  hideMap();position=null;history=[];humidityHistory=[];last=0;waitingSince=0;
+  for(const id of ['lat','lon','temp','hum','fix','time'])$(id).textContent='—';
+  $('pin').textContent='Esperando señal GPS'; $('map').disabled=true;$('external').hidden=true;draw();
+}
+function sample(){
+  render({lat:-0.180653,lon:-78.467834,temp:23.4+.65*Math.sin(step++/5)+.18*Math.cos(step*1.2),hum:58.2+2*Math.cos(step/6)});
+}
+function demo(){
+  mode='demo';reset();step=0;
+  for(let i=0;i<23;i++)sample();
+  status('Demostración','Datos simulados para probar el panel.');
+}
+function receive(line){
+  let data;
+  try{data=JSON.parse(line);}catch{return;}
+  if(!data||typeof data!=='object'||!['lat','lon','temp'].every(key=>Object.hasOwn(data,key)&&(data[key]===null||Number.isFinite(data[key]))))return;
+  render(data);status('En vivo','Recibiendo lecturas del ESP32 a través del broker MQTT.',true);
+}
+function disconnect(){
+  const old=client;
+  client=null;
+  old?.end(true);
+  $('connect').textContent='Conectar a MQTT';
+}
+$('connect').onclick=()=>{
+  if(client){
+    disconnect();reset();status('Sin conexión','Conexión MQTT cerrada.');
+    return;
+  }
+  $('form-error').hidden=true;
+  $('settings').showModal();
+};
+$('cancel').onclick=()=>$('settings').close();
+$('settings').addEventListener('close',()=>{$('broker').elements.password.value='';});
+$('broker').onsubmit=event=>{
+  event.preventDefault();
+  const form=new FormData(event.currentTarget);
+  const topic=form.get('topic').trim();
+  const username=form.get('username');
+  const password=form.get('password');
+  let url;
+  try{url=new URL(form.get('url'));}catch{}
+  const error=$('form-error');
+  if(!url||url.protocol!=='wss:'||url.username||url.password||url.hash||!topic||/[+#\x00]/.test(topic)||(password&&!username)||!window.mqtt){
+    error.textContent=window.mqtt?'Ingresa una URL wss:// sin credenciales, un tema exacto y el usuario si usas contraseña.':'No se pudo cargar MQTT.js. Comprueba que mqtt.min.js esté junto al panel.';
+    error.hidden=false;
+    return;
+  }
+  let connection;
+  try{
+    connection=window.mqtt.connect(url.href,{username:username||undefined,password:password||undefined,reconnectPeriod:2500,connectTimeout:10000,resubscribe:false});
+  }catch{
+    error.textContent='No se pudo iniciar la conexión MQTT.';
+    error.hidden=false;
+    return;
+  }
+  client=connection;
+  mode='mqtt';reset();
+  $('settings').close();
+  $('connect').textContent='Desconectar';
+  status('Conectando','Abriendo una conexión segura con el broker.');
+  connection.on('connect',()=>{
+    if(client!==connection)return;
+    connection.subscribe(topic,{qos:1},(error,granted)=>{
+      if(client!==connection||!connection.connected)return;
+      if(error||!granted?.length||granted.some(entry=>entry.qos>2)){
+        disconnect();reset();status('Suscripción rechazada','Revisa el tema y los permisos de lectura del usuario.');
+        return;
+      }
+      waitingSince=Date.now();
+      if(!last)status('Conectado','Esperando la primera lectura publicada en '+topic+'.');
+    });
+  });
+  connection.on('message',(incoming,payload,packet)=>{
+    if(client===connection&&incoming===topic&&!packet.retain)receive(payload.toString());
+  });
+  connection.on('error',error=>{
+    if(client!==connection)return;
+    if([4,5,134,135].includes(error.code)){
+      disconnect();reset();status('Acceso rechazado','Revisa el usuario y la contraseña del broker.');
+      return;
+    }
+    status('Error de MQTT','Revisa la URL y la conexión a internet. El panel volverá a intentarlo.');
+  });
+  connection.on('offline',()=>{
+    if(client!==connection)return;
+    waitingSince=0;reset();status('Reconectando','Se perdió la conexión con el broker.');
+  });
+};
+$('demo').onclick=()=>{disconnect();demo();};
+$('map').onclick=showMap;
+window.addEventListener('resize',draw);
+setInterval(()=>{
+  if(mode==='demo')sample();
+  const since=last||waitingSince;
+  if(client?.connected&&since&&Date.now()-since>8000){
+    waitingSince=0;reset();status('Sin lecturas','El broker está conectado. Revisa si el ESP32 está publicando en el tema configurado.');
+  }
+},1000);
+demo();
+</script></html>
